@@ -702,8 +702,8 @@ extern void irq_chip_release_resources_parent(struct irq_data *data);
 extern void note_interrupt(struct irq_desc *desc, irqreturn_t action_ret);
 
 
-/* Enable/disable irq debugging output: */
-extern int noirqdebug_setup(char *str);
+/* Disable irq debugging output */
+#define noirqdebug true
 
 /* Checks whether the interrupt can be requested by request_irq(): */
 extern int can_request_irq(unsigned int irq, unsigned long irqflags);
