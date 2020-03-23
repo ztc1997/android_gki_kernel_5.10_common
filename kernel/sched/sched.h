@@ -2603,6 +2603,7 @@ static inline bool uclamp_latency_sensitive(struct task_struct *p)
 # define arch_scale_freq_invariant()	false
 #endif
 
+extern struct cpumask min_cap_cpu_mask;
 #ifdef CONFIG_SMP
 static inline unsigned long capacity_orig_of(int cpu)
 {
