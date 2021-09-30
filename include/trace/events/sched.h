@@ -627,6 +627,35 @@ TRACE_EVENT(sched_wake_idle_without_ipi,
 	TP_printk("cpu=%d", __entry->cpu)
 );
 
+#ifdef CONFIG_SPRD_ROTATION_TASK
+/* task_rotation info */
+TRACE_EVENT(sched_task_rotation,
+
+	TP_PROTO(int src_cpu, int dst_cpu, int src_pid, int dst_pid),
+
+	TP_ARGS(src_cpu, dst_cpu, src_pid, dst_pid),
+
+	TP_STRUCT__entry(
+		__field(int,	src_cpu)
+		__field(int,	dst_cpu)
+		__field(int,	src_pid)
+		__field(int,	dst_pid)
+	),
+
+	TP_fast_assign(
+		__entry->src_cpu = src_cpu;
+		__entry->dst_cpu = dst_cpu;
+		__entry->src_pid = src_pid;
+		__entry->dst_pid = dst_pid;
+	),
+
+	TP_printk("src_cpu=%d dst_cpu=%d src_pid=%d dst_pid=%d",
+		__entry->src_cpu, __entry->dst_cpu,
+		__entry->src_pid, __entry->dst_pid
+	)
+);
+#endif
+
 /*
  * Following tracepoints are not exported in tracefs and provide hooking
  * mechanisms only for testing and debugging purposes.
