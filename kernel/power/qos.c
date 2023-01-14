@@ -383,6 +383,9 @@ static ssize_t cpu_latency_qos_write(struct file *filp, const char __user *buf,
 {
 	s32 value;
 
+	/* Don't let userspace impose restrictions on CPU idle levels */
+	return count;
+
 	if (count == sizeof(s32)) {
 		if (copy_from_user(&value, buf, sizeof(s32)))
 			return -EFAULT;
