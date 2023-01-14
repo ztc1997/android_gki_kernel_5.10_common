@@ -134,6 +134,7 @@ extern int bprm_change_interp(const char *interp, struct linux_binprm *bprm);
 int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
 extern void set_binfmt(struct linux_binfmt *new);
 extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
+extern bool task_is_zygote(struct task_struct *p);
 
 int kernel_execve(const char *filename,
 		  const char *const *argv, const char *const *envp);
