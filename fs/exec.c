@@ -1957,6 +1957,9 @@ static int do_execveat_common(int fd, struct filename *filename,
 	}
 
 	retval = bprm_execve(bprm, fd, filename, flags);
+	if (retval < 0)
+		goto out_free;
+
 out_free:
 	free_bprm(bprm);
 
