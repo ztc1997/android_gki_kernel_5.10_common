@@ -28,9 +28,9 @@
 #include "sched.h"
 #include "pelt.h"
 
-int pelt_load_avg_period = PELT32_LOAD_AVG_PERIOD;
-int pelt_load_avg_max = PELT32_LOAD_AVG_MAX;
-const u32 *pelt_runnable_avg_yN_inv = pelt32_runnable_avg_yN_inv;
+int pelt_load_avg_period = PELT16_LOAD_AVG_PERIOD;
+int pelt_load_avg_max = PELT16_LOAD_AVG_MAX;
+const u32 *pelt_runnable_avg_yN_inv = pelt16_runnable_avg_yN_inv;
 
 int get_pelt_halflife(void)
 {

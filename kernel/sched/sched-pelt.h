@@ -13,6 +13,15 @@ static const u32 pelt32_runnable_avg_yN_inv[] __maybe_unused = {
 #define PELT32_LOAD_AVG_PERIOD 32
 #define PELT32_LOAD_AVG_MAX 47742
 
+static const u32 pelt16_runnable_avg_yN_inv[] __maybe_unused = {
+	0xffffffff, 0xf5257d14, 0xeac0c6e6, 0xe0ccdeeb, 0xd744fcc9, 0xce248c14,
+	0xc5672a10, 0xbd08a39e, 0xb504f333, 0xad583ee9, 0xa5fed6a9, 0x9ef5325f,
+	0x9837f050, 0x91c3d373, 0x8b95c1e3, 0x85aac367,
+};
+
+#define PELT16_LOAD_AVG_PERIOD 16
+#define PELT16_LOAD_AVG_MAX 24130
+
 static const u32 pelt8_runnable_avg_yN_inv[] __maybe_unused = {
 	0xffffffff, 0xeac0c6e6, 0xd744fcc9, 0xc5672a10,
 	0xb504f333, 0xa5fed6a9, 0x9837f050, 0x8b95c1e3,
