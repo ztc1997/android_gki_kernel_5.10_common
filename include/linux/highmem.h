@@ -83,8 +83,6 @@ static inline void kunmap(struct page *page)
  */
 static inline void *kmap_atomic_prot(struct page *page, pgprot_t prot)
 {
-	preempt_disable();
-	pagefault_disable();
 	if (!PageHighMem(page))
 		return page_address(page);
 	return kmap_atomic_high_prot(page, prot);
@@ -153,8 +151,6 @@ static inline void kunmap(struct page *page)
 
 static inline void *kmap_atomic(struct page *page)
 {
-	preempt_disable();
-	pagefault_disable();
 	return page_address(page);
 }
 #define kmap_atomic_prot(page, prot)	kmap_atomic(page)
@@ -185,7 +181,6 @@ static inline int kmap_atomic_idx_push(void)
 	int idx = __this_cpu_inc_return(__kmap_atomic_idx) - 1;
 
 #ifdef CONFIG_DEBUG_HIGHMEM
-	WARN_ON_ONCE(in_irq() && !irqs_disabled());
 	BUG_ON(idx >= KM_TYPE_NR);
 #endif
 	return idx;
@@ -217,8 +212,6 @@ static inline void kmap_atomic_idx_pop(void)
 do {                                                            \
 	BUILD_BUG_ON(__same_type((addr), struct page *));       \
 	kunmap_atomic_high(addr);                                  \
-	pagefault_enable();                                     \
-	preempt_enable();                                       \
 } while (0)
 
 
