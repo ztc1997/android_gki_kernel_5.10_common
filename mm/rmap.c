@@ -1129,7 +1129,6 @@ void do_page_add_anon_rmap(struct page *page,
 {
 	bool compound = flags & RMAP_COMPOUND;
 	bool first;
-	bool success = false;
 
 	if (unlikely(PageKsm(page)))
 		lock_page_memcg(page);
@@ -1143,10 +1142,7 @@ void do_page_add_anon_rmap(struct page *page,
 		mapcount = compound_mapcount_ptr(page);
 		first = atomic_inc_and_test(mapcount);
 	} else {
-		trace_android_vh_update_page_mapcount(page, true, compound,
-							&first, &success);
-		if (!success)
-			first = atomic_inc_and_test(&page->_mapcount);
+		first = atomic_inc_and_test(&page->_mapcount);
 	}
 
 	if (first) {
@@ -1220,22 +1216,13 @@ void __page_add_new_anon_rmap(struct page *page,
 void page_add_file_rmap(struct page *page, bool compound)
 {
 	int i, nr = 1;
-	bool first_mapping;
-	bool success = false;
 
 	VM_BUG_ON_PAGE(compound && !PageTransHuge(page), page);
 	lock_page_memcg(page);
 	if (compound && PageTransHuge(page)) {
 		for (i = 0, nr = 0; i < thp_nr_pages(page); i++) {
-			trace_android_vh_update_page_mapcount(&page[i], true,
-					compound, &first_mapping, &success);
-			if ((success)) {
-				if (first_mapping)
-					nr++;
-			} else {
-				if (atomic_inc_and_test(&page[i]._mapcount))
-					nr++;
-			}
+			if (atomic_inc_and_test(&page[i]._mapcount))
+				nr++;
 		}
 		if (!atomic_inc_and_test(compound_mapcount_ptr(page)))
 			goto out;
@@ -1251,15 +1238,8 @@ void page_add_file_rmap(struct page *page, bool compound)
 			if (PageMlocked(page))
 				clear_page_mlock(compound_head(page));
 		}
-		trace_android_vh_update_page_mapcount(page, true,
-					compound, &first_mapping, &success);
-		if (success) {
-			if (!first_mapping)
-				goto out;
-		} else {
-			if (!atomic_inc_and_test(&page->_mapcount))
-				goto out;
-		}
+		if (!atomic_inc_and_test(&page->_mapcount))
+			goto out;
 	}
 	__mod_lruvec_page_state(page, NR_FILE_MAPPED, nr);
 out:
@@ -1269,8 +1249,6 @@ out:
 static void page_remove_file_rmap(struct page *page, bool compound)
 {
 	int i, nr = 1;
-	bool first_mapping;
-	bool success = false;
 
 	VM_BUG_ON_PAGE(compound && !PageHead(page), page);
 
@@ -1284,15 +1262,8 @@ static void page_remove_file_rmap(struct page *page, bool compound)
 	/* page still mapped by someone else? */
 	if (compound && PageTransHuge(page)) {
 		for (i = 0, nr = 0; i < thp_nr_pages(page); i++) {
-			trace_android_vh_update_page_mapcount(&page[i], false,
-						compound, &first_mapping, &success);
-			if (success) {
-				if (first_mapping)
-					nr++;
-			} else {
-				if (atomic_add_negative(-1, &page[i]._mapcount))
-					nr++;
-			}
+			if (atomic_add_negative(-1, &page[i]._mapcount))
+				nr++;
 		}
 		if (!atomic_add_negative(-1, compound_mapcount_ptr(page)))
 			return;
@@ -1301,15 +1272,8 @@ static void page_remove_file_rmap(struct page *page, bool compound)
 		else
 			__dec_node_page_state(page, NR_FILE_PMDMAPPED);
 	} else {
-		trace_android_vh_update_page_mapcount(page, false,
-					compound, &first_mapping, &success);
-		if (success) {
-			if (!first_mapping)
-				return;
-		} else {
-			if (!atomic_add_negative(-1, &page->_mapcount))
-				return;
-		}
+		if (!atomic_add_negative(-1, &page->_mapcount))
+			return;
 	}
 
 	/*
@@ -1326,8 +1290,6 @@ static void page_remove_file_rmap(struct page *page, bool compound)
 static void page_remove_anon_compound_rmap(struct page *page)
 {
 	int i, nr;
-	bool first_mapping;
-	bool success = false;
 
 	if (!atomic_add_negative(-1, compound_mapcount_ptr(page)))
 		return;
@@ -1347,15 +1309,8 @@ static void page_remove_anon_compound_rmap(struct page *page)
 		 * them are still mapped.
 		 */
 		for (i = 0, nr = 0; i < thp_nr_pages(page); i++) {
-			trace_android_vh_update_page_mapcount(&page[i], false,
-					false, &first_mapping, &success);
-			if (success) {
-				if (first_mapping)
-					nr++;
-			} else {
-				if (atomic_add_negative(-1, &page[i]._mapcount))
-					nr++;
-			}
+			if (atomic_add_negative(-1, &page[i]._mapcount))
+				nr++;
 		}
 
 		/*
@@ -1385,8 +1340,6 @@ static void page_remove_anon_compound_rmap(struct page *page)
  */
 void page_remove_rmap(struct page *page, bool compound)
 {
-	bool first_mapping;
-	bool success = false;
 	lock_page_memcg(page);
 
 	if (!PageAnon(page)) {
@@ -1399,16 +1352,10 @@ void page_remove_rmap(struct page *page, bool compound)
 		goto out;
 	}
 
-	trace_android_vh_update_page_mapcount(page, false,
-					compound, &first_mapping, &success);
-	if (success) {
-		if (!first_mapping)
-			goto out;
-	} else {
-		/* page still mapped by someone else? */
-		if (!atomic_add_negative(-1, &page->_mapcount))
-			goto out;
-	}
+	/* page still mapped by someone else? */
+	if (!atomic_add_negative(-1, &page->_mapcount))
+		goto out;
+
 	/*
 	 * We use the irq-unsafe __{inc|mod}_zone_page_stat because
 	 * these counters are not modified in interrupt context, and
