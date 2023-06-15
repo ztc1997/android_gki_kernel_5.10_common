@@ -531,7 +531,6 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 	struct anon_vma *anon_vma = NULL;
 	struct anon_vma *root_anon_vma;
 	unsigned long anon_mapping;
-	bool success = false;
 
 	rcu_read_lock();
 	anon_mapping = (unsigned long)READ_ONCE(page->mapping);
@@ -552,11 +551,6 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 			up_read(&root_anon_vma->rwsem);
 			anon_vma = NULL;
 		}
-		goto out;
-	}
-	trace_android_vh_do_page_trylock(page, NULL, NULL, &success);
-	if (success) {
-		anon_vma = NULL;
 		goto out;
 	}
 
@@ -2013,7 +2007,6 @@ static void rmap_walk_file(struct page *page, struct rmap_walk_control *rwc,
 	struct address_space *mapping = page_mapping(page);
 	pgoff_t pgoff_start, pgoff_end;
 	struct vm_area_struct *vma;
-	bool got_lock = false, success = false;
 
 	/*
 	 * The page lock not only makes sure that page->mapping cannot
@@ -2029,23 +2022,17 @@ static void rmap_walk_file(struct page *page, struct rmap_walk_control *rwc,
 	pgoff_start = page_to_pgoff(page);
 	pgoff_end = pgoff_start + thp_nr_pages(page) - 1;
 	if (!locked) {
-		trace_android_vh_do_page_trylock(page,
-					&mapping->i_mmap_rwsem, &got_lock, &success);
-		if (success) {
-			if (!got_lock)
-				return;
-		} else {
-			if (i_mmap_trylock_read(mapping))
-				goto lookup;
+		if (i_mmap_trylock_read(mapping))
+			goto lookup;
 
-			if (rwc->try_lock) {
-				rwc->contended = true;
-				return;
-			}
+		if (rwc->try_lock) {
+			rwc->contended = true;
+			return;
+		}
 
 			i_mmap_lock_read(mapping);
-		}
 	}
+
 lookup:
 	vma_interval_tree_foreach(vma, &mapping->i_mmap,
 			pgoff_start, pgoff_end) {
