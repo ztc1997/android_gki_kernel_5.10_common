@@ -95,6 +95,10 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
 		return true;
 	}
 
+	/* If the last frequency wasn't set yet then we can still amend it */
+	if (sg_policy->work_in_progress)
+		return true;
+
 	delta_ns = time - sg_policy->last_freq_update_time;
 
 	return delta_ns >= sg_policy->freq_update_delay_ns;
