@@ -1818,6 +1818,15 @@ config CRYPTO_LZ4
 	help
 	  This is the LZ4 algorithm.
 
+config CRYPTO_LZ4KD
+	tristate "LZ4KD compression algorithm"
+	select CRYPTO_ALGAPI
+	select CRYPTO_ACOMP2
+	select LZ4KD_COMPRESS
+	select LZ4KD_DECOMPRESS
+	help
+	  This is the LZ4KD algorithm.
+
 config CRYPTO_LZ4HC
 	tristate "LZ4HC compression algorithm"
 	select CRYPTO_ALGAPI
