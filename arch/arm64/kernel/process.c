@@ -71,6 +71,9 @@ EXPORT_SYMBOL(__stack_chk_guard);
 void (*pm_power_off)(void);
 EXPORT_SYMBOL_GPL(pm_power_off);
 
+static DEFINE_PER_CPU(struct hrtimer, wfi_timer);
+s64 teo_wfi_timeout_ns(void);
+
 static void noinstr __cpu_do_idle(void)
 {
 	dsb(sy);
@@ -109,11 +112,41 @@ static void noinstr __cpu_do_idle_irqprio(void)
  */
 void noinstr cpu_do_idle(void)
 {
+	s64 wfi_timeout_ns = teo_wfi_timeout_ns();
+	struct hrtimer *timer = NULL;
+
+	/*
+	 * If the tick is stopped, arm a timer to ensure that the CPU doesn't
+	 * stay in WFI too long and burn power. That way, the CPU will be woken
+	 * up so it can enter a deeper idle state instead of staying in WFI.
+	 */
+	if (wfi_timeout_ns) {
+		timer = this_cpu_ptr(&wfi_timer);
+		hrtimer_start(timer, ns_to_ktime(wfi_timeout_ns),
+			      HRTIMER_MODE_REL_PINNED_HARD);
+	}
+
 	if (system_uses_irq_prio_masking())
 		__cpu_do_idle_irqprio();
 	else
 		__cpu_do_idle();
+
+	/* Cancel the timer if it was armed. This always succeeds. */
+	if (timer)
+		hrtimer_try_to_cancel(timer);
 }
+
+static int __init wfi_timer_init(void)
+{
+	int cpu;
+
+	/* No function is needed; the timer is canceled while IRQs are off */
+	for_each_possible_cpu(cpu)
+		hrtimer_init(&per_cpu(wfi_timer, cpu), CLOCK_MONOTONIC,
+			     HRTIMER_MODE_REL_HARD);
+	return 0;
+}
+pure_initcall(wfi_timer_init);
 
 /*
  * This is our default idle handler.
