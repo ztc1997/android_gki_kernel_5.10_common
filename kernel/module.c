@@ -3573,6 +3573,12 @@ static char *custom_module_blacklist[] = {
 #if IS_BUILTIN(CONFIG_ZSMALLOC)
     "zsmalloc",
 #endif
+#if IS_ENABLED(CONFIG_CORESIGHT_PLACEHOLDER) || IS_ENABLED(CONFIG_CORESIGHT_AMBA_PLACEHOLDER)
+    /* Coresight */
+    "coresight", "coresight_csr", "coresight_cti", "coresight_dummy", "coresight_funnel",
+    "coresight_hwevent", "coresight_remote_etm", "coresight_replicator", "coresight_stm",
+    "coresight_tgu", "coresight_tmc", "coresight_tpda", "coresight_tpdm"
+#endif
 #ifdef CONFIG_MACH_XIAOMI_MARBLE
     /* Not required */
     "qca6750", "icnss2", "cs35l41_dlkm", "atmel_mxt_ts", "focaltech_fts", "nt36xxx_i2c", "nt36xxx_spi", "synaptics_dsx",
@@ -3583,10 +3589,6 @@ static char *custom_module_blacklist[] = {
     /* Debug */
     "qcom_cpufreq_hw_debug", "qcom_iommu_debug", "qti_battery_debug", "rdbg", "spmi_glink_debug", "spmi_pmic_arb_debug",
     "debug_ext", "ehset", "lvstest",
-    /* Coresight */
-    "coresight", "coresight_csr", "coresight_cti", "coresight_dummy", "coresight_funnel",
-    "coresight_hwevent", "coresight_remote_etm", "coresight_replicator", "coresight_stm",
-    "coresight_tgu", "coresight_tmc", "coresight_tpda", "coresight_tpdm",
     /* STM (System Trace Module devices) */
     "stm_console", "stm_core", "stm_ftrace", "stm_p_basic", "stm_p_ost"
 #endif
