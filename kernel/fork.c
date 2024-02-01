@@ -97,6 +97,7 @@
 #include <linux/scs.h>
 #include <linux/io_uring.h>
 #include <linux/cpufreq_times.h>
+#include <linux/sched/cpufreq_schedhorizon.h>
 
 #include <asm/pgalloc.h>
 #include <linux/uaccess.h>
@@ -2545,6 +2546,11 @@ pid_t kernel_clone(struct kernel_clone_args *args)
 	    (args->flags & CLONE_PARENT_SETTID) &&
 	    (args->pidfd == args->parent_tid))
 		return -EINVAL;
+
+	/* This covers boosting when userspace launches an app */
+	if (task_is_zygote(current)){
+		restrict_escape_kick(150);
+	}
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When
