@@ -684,6 +684,9 @@ static ssize_t up_delay_store(struct gov_attr_set *attr_set,
 
 	if (new_up_delay) {
 	    old = tunables->up_delay;
+	    tunables->up_delay = new_up_delay;
+	    tunables->nup_delay = new_num;
+	    tunables->current_step = 0;
 	    if (old != default_up_delay)
 	        kfree(old);
 	}
