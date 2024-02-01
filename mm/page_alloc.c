@@ -73,6 +73,7 @@
 #include <linux/khugepaged.h>
 #include <trace/hooks/mm.h>
 #include <trace/hooks/vmscan.h>
+#include <linux/sched/cpufreq_schedhorizon.h>
 
 #include <asm/sections.h>
 #include <asm/tlbflush.h>
@@ -5013,6 +5014,8 @@ retry:
 	 */
 	if (costly_order && !(gfp_mask & __GFP_RETRY_MAYFAIL))
 		goto nopage;
+
+	restrict_escape_kick(150);
 
 	if (should_reclaim_retry(gfp_mask, order, ac, alloc_flags,
 				 did_some_progress > 0, &no_progress_loops))
