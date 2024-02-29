@@ -8243,6 +8243,17 @@ static void cpu_uclamp_write_wrapper(struct cgroup_subsys_state *css, char *buf,
 	rcu_read_unlock();
 	mutex_unlock(&uclamp_mutex);
 }
+
+static inline bool task_is_booster(struct task_struct *tsk)
+{
+	char comm[sizeof(tsk->comm)];
+
+	get_task_comm(comm, tsk);
+
+	return !strcmp(comm, "init") ||
+                !strcmp(comm, "mtkPowerMsgHdl") ||
+	        !strcmp(comm, "mtkPowerService");
+}
 #endif
 
 static ssize_t cpu_uclamp_write(struct kernfs_open_file *of, char *buf,
@@ -8251,6 +8262,11 @@ static ssize_t cpu_uclamp_write(struct kernfs_open_file *of, char *buf,
 {
 	struct uclamp_request req;
 	struct task_group *tg;
+
+#ifdef CONFIG_UCLAMP_ASSIST
+	if (task_is_booster(current))
+		return nbytes;
+#endif
 
 	req = capacity_from_percent(buf);
 	if (req.ret)
