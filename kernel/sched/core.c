@@ -8012,7 +8012,7 @@ cpu_cgroup_css_alloc(struct cgroup_subsys_state *parent_css)
 }
 
 #ifdef CONFIG_UCLAMP_ASSIST
-static bool uclamp_set(struct cgroup_subsys_state *css);
+static void uclamp_set(struct cgroup_subsys_state *css);
 #endif
 
 /* Expose task group only after completing cgroup initialization */
@@ -8252,11 +8252,6 @@ static ssize_t cpu_uclamp_write(struct kernfs_open_file *of, char *buf,
 	struct uclamp_request req;
 	struct task_group *tg;
 
-#ifdef CONFIG_UCLAMP_ASSIST
-	if (uclamp_set(of_css(of)))
-		return nbytes;
-#endif
-
 	req = capacity_from_percent(buf);
 	if (req.ret)
 		return req.ret;
@@ -8363,7 +8358,7 @@ struct uclamp_param {
 	u64  uclamp_latency_sensitive;
 };
 
-static bool uclamp_set(struct cgroup_subsys_state *css)
+static void uclamp_set(struct cgroup_subsys_state *css)
 {
 	int i;
 
@@ -8377,7 +8372,7 @@ static bool uclamp_set(struct cgroup_subsys_state *css)
 	};
 
 	if (!css->cgroup->kn)
-		return false;
+		return;
 
 	for (i = 0; i < ARRAY_SIZE(tgts); i++) {
 		struct uclamp_param tgt = tgts[i];
@@ -8392,11 +8387,9 @@ static bool uclamp_set(struct cgroup_subsys_state *css)
 
 			pr_info("uclamp_assist: setting values for %s: uclamp_min=%s uclamp_max=%s uclamp_latency_sensitive=%d\n",
 				tgt.name, tgt.uclamp_min, tgt.uclamp_max,tgt.uclamp_latency_sensitive);
-			return true;
+			return;
 		}
 	}
-
-	return false;
 }
 #endif /* CONFIG_UCLAMP_ASSIST */
 
