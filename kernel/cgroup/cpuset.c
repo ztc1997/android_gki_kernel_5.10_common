@@ -224,7 +224,9 @@ bool task_is_booster(struct task_struct *tsk)
 	       !strcmp(comm, "power@2.0-servic") ||
 	       !strcmp(comm, "iop@") ||
 	       !strcmp(comm, "PERFD-SERVER") ||
-	       !strcmp(comm, "init.qcom.post_");
+	       !strcmp(comm, "init.qcom.post_") ||
+	       !strcmp(comm, "mtkPowerMsgHdl") ||
+	       !strcmp(comm, "mtkPowerService");
 }
 
 static inline struct cpuset *css_cs(struct cgroup_subsys_state *css)
