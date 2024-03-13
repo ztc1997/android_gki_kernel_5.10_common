@@ -1760,7 +1760,7 @@ static ssize_t recompress_store(struct device *dev,
 	unsigned long nr_pages = zram->disksize >> PAGE_SHIFT;
 	char *args, *param, *val, *algo = NULL;
 	u32 mode = 0, threshold = 0;
-	unsigned long index;
+	unsigned long index, old_cpus_allowed;
 	struct page *page;
 	ssize_t ret;
 
@@ -1833,6 +1833,9 @@ static ssize_t recompress_store(struct device *dev,
 		goto release_init_lock;
 	}
 
+	sched_migrate_to_cpumask_start(to_cpumask(&old_cpus_allowed),
+				       cpu_lp_mask);
+
 	ret = len;
 	for (index = 0; index < nr_pages; index++) {
 		int err = 0;
@@ -1867,6 +1870,9 @@ next:
 
 		cond_resched();
 	}
+
+	sched_migrate_to_cpumask_end(to_cpumask(&old_cpus_allowed),
+				     cpu_lp_mask);
 
 	__free_page(page);
 
