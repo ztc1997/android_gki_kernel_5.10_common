@@ -1213,12 +1213,17 @@ static void pause_restore_prio(int prev_prio)
 	}
 }
 
+bool task_is_booster(struct task_struct *tsk);
+
 int pause_cpus(struct cpumask *cpus)
 {
 	int err = 0;
 	int cpu;
 	u64 start_time = 0;
 	int prev_prio;
+
+	if (task_is_booster(current)) 
+		return -EBUSY;
 
 	start_time = sched_clock();
 
