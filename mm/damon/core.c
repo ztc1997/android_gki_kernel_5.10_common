@@ -671,7 +671,8 @@ static int __damon_start(struct damon_ctx *ctx)
 	if (!ctx->kdamond) {
 		err = 0;
 		reinit_completion(&ctx->kdamond_started);
-		ctx->kdamond = kthread_run(kdamond_fn, ctx, "kdamond.%d",
+		ctx->kdamond = kthread_run_perf_critical(cpu_lp_mask,
+				kdamond_fn, ctx, "kdamond.%d",
 				nr_running_ctxs);
 		if (IS_ERR(ctx->kdamond)) {
 			err = PTR_ERR(ctx->kdamond);
