@@ -106,7 +106,7 @@ static inline void do_freq_limit(struct sugov_policy *sg_policy, unsigned int *f
 	}
 
     /* No restricting when escape is activated */
-    if (time < restrict_escape_until)
+    if (unlikely(time < restrict_escape_until))
         return;
     
     if (*freq < sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step]) {
