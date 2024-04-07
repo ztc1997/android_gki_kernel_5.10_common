@@ -223,7 +223,7 @@ config CPU_FREQ_GOV_SCHEDUTIL
 comment "CPU frequency scaling drivers"
 
 config CPU_FREQ_GOV_SCHEDHORIZON
-	bool "'schedhorizon' cpufreq policy governor"
+	tristate "'schedhorizon' cpufreq policy governor"
 	depends on CPU_FREQ && SMP
 	select CPU_FREQ_GOV_ATTR_SET
 	select IRQ_WORK

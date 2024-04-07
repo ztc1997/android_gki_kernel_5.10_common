@@ -38,7 +38,7 @@ struct sugov_policy {
 	s64			freq_update_delay_ns;
 	unsigned int		next_freq;
 	unsigned int		cached_raw_freq;
-    u64	 		first_hp_request_time;
+	u64	 		first_hp_request_time;
 
 	/* The next fields are only needed if fast switch cannot be used: */
 	struct			irq_work irq_work;
@@ -91,19 +91,19 @@ static inline void do_freq_limit(struct sugov_policy *sg_policy, unsigned int *f
         return;
 	}
     
-    if (*freq < sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step]) {
+	if (*freq < sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step]) {
 		/* It's already under current efficient frequency */
 		/* Goto a lower one */
 		sg_policy->tunables->current_step = match_nearest_efficient_step(*freq, sg_policy->tunables->nefficient_freq, sg_policy->tunables->efficient_freq);
 		sg_policy->first_hp_request_time = 0;
-        return;
+		return;
 	} 
     
     if ((sg_policy->first_hp_request_time 
 		&& time < sg_policy->first_hp_request_time + sg_policy->tunables->up_delay[sg_policy->tunables->current_step])){
 		/* Restrict it */
 		*freq = sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step];
-        return;
+		return;
 	} 
     
     if (sg_policy->tunables->current_step + 1 <= sg_policy->tunables->nefficient_freq - 1
@@ -113,7 +113,7 @@ static inline void do_freq_limit(struct sugov_policy *sg_policy, unsigned int *f
 		sg_policy->first_hp_request_time = time;
 		if (*freq > sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step])
 			*freq = sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step];
-        return;
+		return;
 	}
 }
 
@@ -162,8 +162,6 @@ static bool sugov_update_next_freq(struct sugov_policy *sg_policy, u64 time,
 	if (!sg_policy->need_freq_update) {
 		if (sg_policy->next_freq == next_freq)
 			return false;
-	} else {
-		sg_policy->need_freq_update = cpufreq_driver_test_flags(CPUFREQ_NEED_UPDATE_LIMITS);
 	}
 
 	sg_policy->next_freq = next_freq;
@@ -217,8 +215,7 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 				  unsigned long util, unsigned long max, u64 time)
 {
 	struct cpufreq_policy *policy = sg_policy->policy;
-	unsigned int freq = arch_scale_freq_invariant() ?
-				policy->cpuinfo.max_freq : policy->cur;
+	unsigned int freq = policy->cpuinfo.max_freq;
 	unsigned long next_freq = 0;
 
 	trace_android_vh_map_util_freq(util, freq, max, &next_freq, policy,
@@ -923,8 +920,7 @@ static int sugov_start(struct cpufreq_policy *policy)
 	sg_policy->work_in_progress		= false;
 	sg_policy->limits_changed		= false;
 	sg_policy->cached_raw_freq		= 0;
-
-	sg_policy->need_freq_update = cpufreq_driver_test_flags(CPUFREQ_NEED_UPDATE_LIMITS);
+	sg_policy->need_freq_update		= false;
 
 	for_each_cpu(cpu, policy->cpus) {
 		struct sugov_cpu *sg_cpu = &per_cpu(sugov_cpu, cpu);
@@ -985,11 +981,17 @@ struct cpufreq_governor schedhorizon_gov = {
 	.limits			= sugov_limits,
 };
 
-#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDHORIZON
-struct cpufreq_governor *cpufreq_default_governor(void)
+static int __init cpufreq_schedhorizon_init(void)
 {
-	return &schedhorizon_gov;
+	return cpufreq_register_governor(&schedhorizon_gov);
 }
-#endif
 
-cpufreq_governor_init(schedhorizon_gov);
+static void __exit cpufreq_schedhorizon_exit(void)
+{
+	cpufreq_unregister_governor(&schedhorizon_gov);
+}
+
+module_init(cpufreq_schedhorizon_init);
+module_exit(cpufreq_schedhorizon_exit);
+
+MODULE_LICENSE("GPL");
