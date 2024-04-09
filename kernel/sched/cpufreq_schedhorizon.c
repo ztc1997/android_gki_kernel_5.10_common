@@ -12,7 +12,6 @@
 
 #include <linux/sched/cpufreq.h>
 #include <trace/events/power.h>
-#include <trace/hooks/sched.h>
 
 static unsigned int default_efficient_freq[] = {0};
 static u64 default_up_delay[] = {0};
@@ -218,8 +217,6 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	unsigned int freq = policy->cpuinfo.max_freq;
 	unsigned long next_freq = 0;
 
-	trace_android_vh_map_util_freq(util, freq, max, &next_freq, policy,
-			&sg_policy->need_freq_update);
 	if (next_freq)
 		freq = next_freq;
 	else
