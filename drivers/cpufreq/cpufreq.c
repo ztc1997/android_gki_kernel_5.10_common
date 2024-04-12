@@ -34,7 +34,7 @@
 
 static LIST_HEAD(cpufreq_policy_list);
 
-static unsigned int min_limit[3] = {INT_MAX, INT_MAX, INT_MAX};
+static unsigned int min_limit[3] __read_mostly = {INT_MAX, INT_MAX, INT_MAX};
 
 static int get_index_by_cpu(const unsigned int cpu)
 {
