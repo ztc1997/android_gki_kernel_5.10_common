@@ -3615,6 +3615,9 @@ void wake_up_new_task(struct task_struct *p)
 	post_init_entity_util_avg(p);
 	trace_android_rvh_new_task_stats(p);
 
+#ifdef CONFIG_SPRD_ROTATION_TASK
+	p->last_enqueue_ts = sched_ktime_clock();
+#endif
 	activate_task(rq, p, ENQUEUE_NOCLOCK);
 	trace_sched_wakeup_new(p);
 	check_preempt_curr(rq, p, WF_FORK);
