@@ -3579,6 +3579,9 @@ static char *custom_module_blacklist[] = {
 #if IS_BUILTIN(CONFIG_USB_NET_AX88179_178A)
     "ax88179_178a",
 #endif
+#if IS_BUILTIN(CONFIG_BINDER_PRIO)
+    "binder_prio",
+#endif
 #if IS_ENABLED(CONFIG_CORESIGHT_PLACEHOLDER) || IS_ENABLED(CONFIG_CORESIGHT_AMBA_PLACEHOLDER)
     /* Coresight */
     "coresight", "coresight_csr", "coresight_cti", "coresight_dummy", "coresight_funnel",
