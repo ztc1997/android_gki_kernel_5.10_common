@@ -14,7 +14,7 @@ static const char *task_name[] = {
 	"droid.launcher3",  // com.android.launcher3
 	"ndroid.systemui",  // com.android.systemui
 	// "surfaceflinger",
-	"com.tencent.mm",
+	// "com.tencent.mm",
 };
 
 static int to_userspace_prio(int policy, int kernel_priority) {
