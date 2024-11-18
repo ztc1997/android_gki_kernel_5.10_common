@@ -2763,22 +2763,22 @@ static inline bool task_may_not_preempt(struct task_struct *task, int cpu)
 
 #ifdef CONFIG_SPRD_ROTATION_TASK
 DECLARE_PER_CPU_SHARED_ALIGNED(bool, cpu_reserved);
-static inline bool is_reserved(int cpu)
+static inline bool is_task_rotation_reserved(int cpu)
 {
 	return per_cpu(cpu_reserved, cpu);
 }
-static inline void mark_reserved(int cpu)
+static inline void mark_task_rotation_reserved(int cpu)
 {
 	per_cpu(cpu_reserved, cpu) = true;
 }
-static inline void clear_reserved(int cpu)
+static inline void clear_task_rotation_reserved(int cpu)
 {
 	per_cpu(cpu_reserved, cpu) = false;
 }
 void check_for_task_rotation(struct rq *src_rq);
 u64 sched_ktime_clock(void);
 #else
-static inline bool is_reserved(int cpu)
+static inline bool is_task_rotation_reserved(int cpu)
 {
 	return false;
 }

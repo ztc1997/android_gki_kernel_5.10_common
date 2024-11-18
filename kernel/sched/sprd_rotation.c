@@ -99,7 +99,7 @@ void check_for_task_rotation(struct rq *src_rq)
 		struct rq *rq = cpu_rq(i);
 		struct task_struct *curr_task = rq->curr;
 
-		if (!rq->misfit_task_load || is_reserved(i) ||
+		if (!rq->misfit_task_load || is_task_rotation_reserved(i) ||
 		    curr_task->sched_class != &fair_sched_class ||
 		    task_fits_capacity(task_util_orig(curr_task), capacity_of(i)))
 			continue;
@@ -117,7 +117,7 @@ void check_for_task_rotation(struct rq *src_rq)
 	for_each_cpu_not(i, &min_cap_cpu_mask) {
 		struct rq *rq = cpu_rq(i);
 
-		if (is_reserved(i))
+		if (is_task_rotation_reserved(i))
 			continue;
 
 		if (rq->curr->sched_class != &fair_sched_class)
@@ -154,8 +154,8 @@ void check_for_task_rotation(struct rq *src_rq)
 		get_task_struct(src_rq->curr);
 		get_task_struct(dst_rq->curr);
 
-		mark_reserved(src_cpu);
-		mark_reserved(dst_cpu);
+		mark_task_rotation_reserved(src_cpu);
+		mark_task_rotation_reserved(dst_cpu);
 
 		rd = &per_cpu(rotation_datas, src_cpu);
 
@@ -181,8 +181,8 @@ static void do_rotation_task(struct rotation_data *rd)
 	put_task_struct(rd->src_task);
 	put_task_struct(rd->dst_task);
 
-	clear_reserved(rd->src_cpu);
-	clear_reserved(rd->dst_cpu);
+	clear_task_rotation_reserved(rd->src_cpu);
+	clear_task_rotation_reserved(rd->dst_cpu);
 }
 
 static int __ref try_rotation_task(void *data)

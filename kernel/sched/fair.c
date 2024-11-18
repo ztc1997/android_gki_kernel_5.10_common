@@ -6906,7 +6906,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu, int sy
 		base_energy += base_energy_pd;
 
 		for_each_cpu_and(cpu, perf_domain_span(pd), sched_domain_span(sd)) {
-			if (!cpumask_test_cpu(cpu, p->cpus_ptr) || is_reserved(cpu))
+			if (!cpumask_test_cpu(cpu, p->cpus_ptr) || is_task_rotation_reserved(cpu))
 				continue;
 
 			util = cpu_util_next(cpu, p, cpu);
@@ -10087,8 +10087,8 @@ more_balance:
 
 			raw_spin_lock_irqsave(&busiest->lock, flags);
 
-			if (is_reserved(this_cpu) ||
-				is_reserved(cpu_of(busiest))) {
+			if (is_task_rotation_reserved(this_cpu) ||
+				is_task_rotation_reserved(cpu_of(busiest))) {
 				raw_spin_unlock_irqrestore(&busiest->lock, flags);
 				*continue_balancing = 0;
 				goto out;
