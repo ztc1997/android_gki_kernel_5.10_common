@@ -1373,17 +1373,17 @@ struct task_struct {
 	int				mce_count;
 #endif
 
-#ifdef CONFIG_SPRD_ROTATION_TASK
-	u64 last_enqueue_ts;
-#endif
-
 	ANDROID_VENDOR_DATA_ARRAY(1, 64);
 	ANDROID_OEM_DATA_ARRAY(1, 32);
 
 	/* PF_IO_WORKER */
 	ANDROID_KABI_USE(1, void *pf_io_worker);
 
+#ifdef CONFIG_SPRD_ROTATION_TASK
+	ANDROID_KABI_USE(2, u64 last_enqueue_ts);
+#else
 	ANDROID_KABI_RESERVE(2);
+#endif
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
 	ANDROID_KABI_RESERVE(5);
