@@ -125,7 +125,7 @@ static void menu_update(struct cpuidle_driver *drv, struct cpuidle_device *dev);
 static unsigned int get_typical_interval(struct menu_device *data)
 {
 	int i, divisor;
-	unsigned int min, max, thresh, avg;
+	unsigned int max, thresh, avg;
 	uint64_t sum, variance;
 
 	thresh = INT_MAX; /* Discard outliers above this value */
@@ -133,7 +133,6 @@ static unsigned int get_typical_interval(struct menu_device *data)
 again:
 
 	/* First calculate the average of past intervals */
-	min = UINT_MAX;
 	max = 0;
 	sum = 0;
 	divisor = 0;
@@ -144,9 +143,6 @@ again:
 			divisor++;
 			if (value > max)
 				max = value;
-
-			if (value < min)
-				min = value;
 		}
 	}
 
