@@ -29,6 +29,7 @@ static struct apk_sign_key {
 	const char *sha256;
 } apk_sign_keys[] = {
 	{EXPECTED_SIZE, EXPECTED_HASH},
+	{384, "7e0c6d7278a3bb8e364e0fcba95afaf3666cf5ff3c245a3b63c8833bd0445cc4"},  // MKSU
 };
 
 static struct sdesc *init_sdesc(struct crypto_shash *alg)
