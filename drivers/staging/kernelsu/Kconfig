@@ -35,7 +35,7 @@ config KSU_SUSFS
 
 config KSU_SUSFS_HAS_MAGIC_MOUNT
     bool "Say yes if the current KernelSU repo has magic mount implemented (default y)"
-    depends on KSU
+    depends on KSU_SUSFS
     default y
     help
       - Enable to indicate that the current SUSFS kernel supports the auto hide features for 5ec1cff's Magic Mount KernelSU
