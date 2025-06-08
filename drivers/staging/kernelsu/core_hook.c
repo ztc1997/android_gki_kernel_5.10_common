@@ -715,49 +715,49 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 				return 0;
 			}
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
-			enabled_features |= (1 << 0);
+			enabled_features |= KSU_SUSFS_SUS_PATH_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-			enabled_features |= (1 << 1);
+			enabled_features |= KSU_SUSFS_SUS_MOUNT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
-			enabled_features |= (1 << 2);
+			enabled_features |= KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
-			enabled_features |= (1 << 3);
+			enabled_features |= KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-			enabled_features |= (1 << 4);
+			enabled_features |= KSU_SUSFS_SUS_KSTAT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_OVERLAYFS
-			enabled_features |= (1 << 5);
+			enabled_features |= KSU_SUSFS_SUS_OVERLAYFS_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
-			enabled_features |= (1 << 6);
+			enabled_features |= KSU_SUSFS_TRY_UMOUNT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
-			enabled_features |= (1 << 7);
+			enabled_features |= KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
-			enabled_features |= (1 << 8);
+			enabled_features |= KSU_SUSFS_SPOOF_UNAME_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
-			enabled_features |= (1 << 9);
+			enabled_features |= KSU_SUSFS_ENABLE_LOG_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
-			enabled_features |= (1 << 10);
+			enabled_features |= KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
-			enabled_features |= (1 << 11);
+			enabled_features |= KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
-			enabled_features |= (1 << 12);
+			enabled_features |= KSU_SUSFS_OPEN_REDIRECT_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_SUS_SU
-			enabled_features |= (1 << 13);
+			enabled_features |= KSU_SUSFS_SUS_SU_FLAG;
 #endif
 #ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
-			enabled_features |= (1 << 14);
+			enabled_features |= KSU_SUSFS_HAS_MAGIC_MOUNT_FLAG;
 #endif
 			error = copy_to_user((void __user*)arg3, (void*)&enabled_features, sizeof(enabled_features));
 			pr_info("susfs: CMD_SUSFS_SHOW_ENABLED_FEATURES -> ret: %d\n", error);
