@@ -157,7 +157,7 @@ config KSU_SUSFS_OPEN_REDIRECT
 
 config KSU_SUSFS_SUS_SU
     bool "Enable SUS-SU in runtime temporarily"
-    depends on KSU_SUSFS && KPROBES && HAVE_KPROBES && KPROBE_EVENTS
+    depends on KSU_SUSFS && KPROBES && HAVE_KPROBES && KPROBE_EVENTS && !KSU_MANUAL_HOOK
     default y
     help
       - Allow user to enable or disable core ksu kprobes hooks temporarily in runtime. There are 2 working modes for sus_su.
