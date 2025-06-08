@@ -117,7 +117,7 @@ config KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
 
 config KSU_SUSFS_SPOOF_UNAME
     bool "Enable to spoof uname"
-    depends on KSU_SUSFS
+    depends on KSU_SUSFS && !UNAME_OVERRIDE
     default y
     help
       - Allow spoofing the string returned by uname syscall to user-defined string.
