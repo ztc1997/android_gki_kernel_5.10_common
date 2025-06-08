@@ -29,7 +29,7 @@ menu "KernelSU - SUSFS"
 config KSU_SUSFS
     bool "KernelSU addon - SUSFS"
     depends on KSU
-    default y
+    default n
     help
       Patch and Enable SUSFS to kernel with KernelSU.
 
