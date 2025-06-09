@@ -155,18 +155,6 @@ config KSU_SUSFS_OPEN_REDIRECT
       - Effective only on processes with uid < 2000.
       - Please be reminded that process with open access to the target and redirected path can be detected.
 
-config KSU_SUSFS_SUS_SU
-    bool "Enable SUS-SU in runtime temporarily"
-    depends on KSU_SUSFS && KPROBES && HAVE_KPROBES && KPROBE_EVENTS && !KSU_MANUAL_HOOK
-    default y
-    help
-      - Allow user to enable or disable core ksu kprobes hooks temporarily in runtime. There are 2 working modes for sus_su.
-      - Mode 0 (default): Disable sus_su, and enable ksu kprobe hooks for su instead.
-      - Mode 1 (deprecated): 
-      - Mode 2: Enable sus_su, and disable ksu kprobe hooks for su, which means the kernel inline hooks are enabled,
-                the same as the su implementaion of non-gki kernel without kprobe supported.
-      - Only apps with root access granted by ksu manager are allowed to get root.
-
 endmenu
 
 endmenu

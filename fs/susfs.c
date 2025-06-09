@@ -841,61 +841,6 @@ struct filename* susfs_get_redirected_path(unsigned long ino) {
 }
 #endif // #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT
 
-/* sus_su */
-#ifdef CONFIG_KSU_SUSFS_SUS_SU
-extern int susfs_sus_su_working_mode;
-extern void ksu_susfs_enable_sus_su(void);
-extern void ksu_susfs_disable_sus_su(void);
-
-int susfs_get_sus_su_working_mode(void) {
-	return susfs_sus_su_working_mode;
-}
-
-int susfs_sus_su(struct st_sus_su* __user user_info) {
-	struct st_sus_su info;
-	int last_working_mode = susfs_sus_su_working_mode;
-
-	if (copy_from_user(&info, user_info, sizeof(struct st_sus_su))) {
-		SUSFS_LOGE("failed copying from userspace\n");
-		return 1;
-	}
-
-	if (info.mode == SUS_SU_WITH_HOOKS) {
-		if (last_working_mode == SUS_SU_WITH_HOOKS) {
-			SUSFS_LOGE("current sus_su mode is already %d\n", SUS_SU_WITH_HOOKS);
-			return 1;
-		}
-		if (last_working_mode != SUS_SU_DISABLED) {
-			SUSFS_LOGE("please make sure the current sus_su mode is %d first\n", SUS_SU_DISABLED);
-			return 2;
-		}
-		ksu_susfs_enable_sus_su();
-		SUSFS_LOGI("core kprobe hooks for ksu are disabled!\n");
-		SUSFS_LOGI("non-kprobe hook sus_su is enabled!\n");
-		SUSFS_LOGI("sus_su mode: %d\n", SUS_SU_WITH_HOOKS);
-		return 0;
-	} else if (info.mode == SUS_SU_DISABLED) {
-		if (last_working_mode == SUS_SU_DISABLED) {
-			SUSFS_LOGE("current sus_su mode is already %d\n", SUS_SU_DISABLED);
-			return 1;
-		}
-		ksu_susfs_disable_sus_su();
-		if (last_working_mode == SUS_SU_WITH_HOOKS) {
-			SUSFS_LOGI("core kprobe hooks for ksu are enabled!\n");
-			goto out;
-		}
-out:
-		if (copy_to_user(user_info, &info, sizeof(info)))
-			SUSFS_LOGE("copy_to_user() failed\n");
-		return 0;
-	} else if (info.mode == SUS_SU_WITH_OVERLAY) {
-		SUSFS_LOGE("sus_su mode %d is deprecated\n", SUS_SU_WITH_OVERLAY);
-		return 1;
-	}
-	return 1;
-}
-#endif // #ifdef CONFIG_KSU_SUSFS_SUS_SU
-
 /* susfs_init */
 void susfs_init(void) {
 	spin_lock_init(&susfs_spin_lock);
