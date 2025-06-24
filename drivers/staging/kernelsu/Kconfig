@@ -15,6 +15,13 @@ config KSU_DEBUG
 	help
 	  Enable KernelSU debug mode.
 
+config KSU_CUSTOM_SIGN_KEY
+	bool "Allows custom APK signing keys"
+	depends on KSU && KSU != m
+	default n
+	help
+	  Allows specifying an additional available APK signing key via module parameters.
+
 config KSU_MANUAL_HOOK
 	bool "Manual hooking without kprobes"
 	depends on KSU && KSU != m

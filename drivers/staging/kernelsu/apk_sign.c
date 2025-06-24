@@ -4,7 +4,7 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/version.h>
-#ifdef CONFIG_KSU_DEBUG
+#if defined(CONFIG_KSU_DEBUG) || defined(CONFIG_KSU_CUSTOM_SIGN_KEY)
 #include <linux/moduleparam.h>
 #endif
 #include <crypto/hash.h>
@@ -31,6 +31,30 @@ static struct apk_sign_key {
 	{EXPECTED_SIZE, EXPECTED_HASH},
 	{384, "7e0c6d7278a3bb8e364e0fcba95afaf3666cf5ff3c245a3b63c8833bd0445cc4"},  // MKSU
 };
+
+#ifdef CONFIG_KSU_CUSTOM_SIGN_KEY
+#define KEY_LENGTH 64
+
+static unsigned int custom_key_size = 0;
+static char custom_key_sha256[KEY_LENGTH + 1];
+
+static int custom_key_size_set(const char *val, const struct kernel_param *kp)
+{
+	int ret;
+	unsigned int temp;
+
+	ret = kstrtouint(val, 0, &temp);
+	if (ret)
+		return ret;
+
+	return param_set_int(val, kp);
+}
+
+module_param_call(custom_key_size, custom_key_size_set, param_get_int,
+		  &custom_key_size, S_IRUGO);
+module_param_string(custom_key_sha256, custom_key_sha256,
+		  sizeof(custom_key_sha256), S_IRUGO);
+#endif
 
 static struct sdesc *init_sdesc(struct crypto_shash *alg)
 {
@@ -129,6 +153,15 @@ static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset)
 			return true;
 		}
 	}
+
+#ifdef CONFIG_KSU_CUSTOM_SIGN_KEY
+	if (*size4 == custom_key_size &&
+	    strcmp(hash_str, custom_key_sha256) == 0) {
+		pr_info("Custom sign key is matched\n");
+		return true;
+	}
+#endif
+
 	return false;
 }
 
