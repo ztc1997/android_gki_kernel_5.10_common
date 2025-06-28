@@ -54,7 +54,7 @@ config KSU_SUSFS_SUS_PATH
     default y
     help
       - Allow hiding the user-defined path and all its sub-paths from various system calls.
-      - tmpfs filesystem is not allowed to be added. 
+      - Includes temp fix for the leaks of app path in /sdcard/Android/data directory.
       - Effective only on zygote spawned user app process.
       - Use with cautious as it may cause performance loss and will be vulnerable to side channel attacks,
         just disable this feature if it doesn't work for you or you don't need it at all.
@@ -94,16 +94,6 @@ config KSU_SUSFS_SUS_KSTAT
     help
       - Allow spoofing the kstat of user-defined file/directory.
       - Effective only on zygote spawned user app process.
-
-config KSU_SUSFS_SUS_OVERLAYFS
-    bool "Enable to automatically spoof kstat and kstatfs for overlayed files/directories"
-    depends on KSU_SUSFS
-    default n
-    help
-      - Automatically spoof the kstat and kstatfs for overlayed files/directories.
-      - Enable it if you are using legacy KernelSU and dont have auto hide features enabled.
-      - No susfs command is needed in userspace.
-      - Effective on all processes.
 
 config KSU_SUSFS_TRY_UMOUNT
     bool "Enable to use ksu's ksu_try_umount"
@@ -161,6 +151,18 @@ config KSU_SUSFS_OPEN_REDIRECT
       - Allow redirecting a target path to be opened with another user-defined path.
       - Effective only on processes with uid < 2000.
       - Please be reminded that process with open access to the target and redirected path can be detected.
+
+config KSU_SUSFS_SUS_SU
+    bool "Enable SUS-SU in runtime temporarily"
+    depends on KSU_SUSFS && KPROBES && HAVE_KPROBES && KPROBE_EVENTS && !KSU_MANUAL_HOOK
+    default y
+    help
+      - Allow user to enable or disable core ksu kprobes hooks temporarily in runtime. There are 2 working modes for sus_su.
+      - Mode 0 (default): Disable sus_su, and enable ksu kprobe hooks for su instead.
+      - Mode 1 (deprecated): 
+      - Mode 2: Enable sus_su, and disable ksu kprobe hooks for su, which means the kernel inline hooks are enabled,
+                the same as the su implementaion of non-gki kernel without kprobe supported.
+      - Only apps with root access granted by ksu manager are allowed to get root.
 
 endmenu
 

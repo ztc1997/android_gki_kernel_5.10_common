@@ -19,6 +19,7 @@ obj-y :=	open.o read_write.o file_table.o super.o \
 		kernel_read_file.o remap_range.o
 
 obj-$(CONFIG_KSU_SUSFS) += susfs.o
+obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o
 
 ifeq ($(CONFIG_BLOCK),y)
 obj-y +=	buffer.o block_dev.o direct-io.o mpage.o
