@@ -24,10 +24,11 @@ struct sdesc {
 	char ctx[];
 };
 
-static struct apk_sign_key {
+struct apk_sign_key {
 	unsigned size;
 	const char *sha256;
-} apk_sign_keys[] = {
+};
+static struct apk_sign_key apk_sign_keys[] = {
 	{EXPECTED_SIZE, EXPECTED_HASH},
 	{384, "7e0c6d7278a3bb8e364e0fcba95afaf3666cf5ff3c245a3b63c8833bd0445cc4"},  // MKSU
 };
@@ -37,6 +38,10 @@ static struct apk_sign_key {
 
 static unsigned int custom_key_size = 0;
 static char custom_key_sha256[KEY_LENGTH + 1];
+static struct apk_sign_key block_apk_sign_keys[] = {
+	{0x35c, "947ae944f3de4ed4c21a7e4f7953ecf351bfa2b36239da37a34111ad29993eef"},  // SukiSU-Ultra
+};
+
 
 static int custom_key_size_set(const char *val, const struct kernel_param *kp)
 {
@@ -155,6 +160,16 @@ static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset)
 	}
 
 #ifdef CONFIG_KSU_CUSTOM_SIGN_KEY
+	for (i = 0; i < ARRAY_SIZE(block_apk_sign_keys); i++) {
+		sign_key = block_apk_sign_keys[i];
+
+		if (*size4 == sign_key.size &&
+		    strcmp(sign_key.sha256, hash_str) == 0) {
+			pr_info("Blocked sign key is matched\n");
+			return false;
+		}
+	}
+
 	if (*size4 == custom_key_size &&
 	    strcmp(hash_str, custom_key_sha256) == 0) {
 		pr_info("Custom sign key is matched\n");
