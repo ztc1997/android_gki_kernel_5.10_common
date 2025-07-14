@@ -1014,7 +1014,6 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 #ifdef CONFIG_KSU_SUSFS
 	// check if current process is zygote
 	bool is_zygote_child = susfs_is_sid_equal(old->security, susfs_zygote_sid);
-#endif // #ifdef CONFIG_KSU_SUSFS
 	if (likely(is_zygote_child)) {
 		// if spawned process is non user app process
 		if (unlikely(new_uid.val < 10000 && new_uid.val >= 1000)) {
@@ -1025,7 +1024,6 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 			}
 #endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 		}
-#ifdef CONFIG_KSU_SUSFS
 		// - here we check if uid is a isolated service spawned by zygote directly
 		// - Apps that do not use "useAppZyogte" to start a isolated service will be directly
 		//   spawned by zygote which KSU will ignore it by default, the only fix for now is to
