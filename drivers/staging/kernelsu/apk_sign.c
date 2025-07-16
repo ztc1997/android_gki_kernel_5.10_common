@@ -31,6 +31,7 @@ struct apk_sign_key {
 static struct apk_sign_key apk_sign_keys[] = {
 	{EXPECTED_SIZE, EXPECTED_HASH},
 	{384, "7e0c6d7278a3bb8e364e0fcba95afaf3666cf5ff3c245a3b63c8833bd0445cc4"},  // MKSU
+	{0x316, "a997df357d1e3a42d3d68f6a2797e3ecec79b21c8972cafc1834c5386920d428"},  // YuKongA/KernelSU
 };
 
 #ifdef CONFIG_KSU_CUSTOM_SIGN_KEY
