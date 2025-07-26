@@ -41,6 +41,7 @@ static unsigned int custom_key_size = 0;
 static char custom_key_sha256[KEY_LENGTH + 1];
 static struct apk_sign_key block_apk_sign_keys[] = {
 	{0x35c, "947ae944f3de4ed4c21a7e4f7953ecf351bfa2b36239da37a34111ad29993eef"},  // SukiSU-Ultra
+	{0x3e6, "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7"},  // KernelSU-Next
 };
 
 
