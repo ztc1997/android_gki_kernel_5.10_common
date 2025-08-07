@@ -5,6 +5,10 @@
 
 ccflags-y += -I $(srctree)/$(src)
 
+ifeq ($(shell test $(CONFIG_CLANG_VERSION) -ge 210000 2>/dev/null; echo $$?),0)
+ccflags-y += -Wno-uninitialized-const-pointer
+endif
+
 KVM=../../../virt/kvm
 
 obj-$(CONFIG_KVM) += kvm.o
