@@ -4,17 +4,17 @@
 #include "linux/types.h"
 #include "linux/version.h"
 
-void ksu_setup_selinux(const char *);
+void setup_selinux(const char *);
 
-void ksu_setenforce(bool);
+void setenforce(bool);
 
-bool ksu_getenforce();
+bool getenforce();
 
-bool ksu_is_ksu_domain();
+bool is_ksu_domain();
 
-bool ksu_is_zygote(void *cred);
+bool is_zygote(void *cred);
 
-void ksu_apply_kernelsu_rules();
+void apply_kernelsu_rules();
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 bool susfs_is_sid_equal(void *sec, u32 sid2);

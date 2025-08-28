@@ -264,7 +264,7 @@ bool __ksu_is_allow_uid(uid_t uid)
 
 	if (unlikely(uid == 0)) {
 		// already root, but only allow our domain.
-		return ksu_is_ksu_domain();
+		return is_ksu_domain();
 	}
 
 	if (forbid_system_uid(uid)) {

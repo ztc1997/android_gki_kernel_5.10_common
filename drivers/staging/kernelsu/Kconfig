@@ -36,6 +36,7 @@ menu "KernelSU - SUSFS"
 config KSU_SUSFS
     bool "KernelSU addon - SUSFS"
     depends on KSU
+    depends on THREAD_INFO_IN_TASK
     default n
     help
       Patch and Enable SUSFS to kernel with KernelSU.
@@ -96,19 +97,19 @@ config KSU_SUSFS_SUS_KSTAT
       - Effective only on zygote spawned user app process.
 
 config KSU_SUSFS_TRY_UMOUNT
-    bool "Enable to use ksu's ksu_try_umount"
+    bool "Enable to use ksu's try_umount"
     depends on KSU_SUSFS
     default y
     help
-      - Allow using ksu_try_umount to umount other user-defined mount paths prior to ksu's default umount paths.
+      - Allow using try_umount to umount other user-defined mount paths prior to ksu's default umount paths.
       - Effective on all NO-root-access-granted processes.
 
 config KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
-    bool "Enable to add bind mounts to ksu's ksu_try_umount automatically (experimental)"
+    bool "Enable to add bind mounts to ksu's try_umount automatically (experimental)"
     depends on KSU_SUSFS_TRY_UMOUNT
     default y
     help
-      - Automatically add binded mounts to ksu's ksu_try_umount.
+      - Automatically add binded mounts to ksu's try_umount.
       - No susfs command is needed in userspace.
       - Only mount operation from process with ksu domain will be checked.
 
