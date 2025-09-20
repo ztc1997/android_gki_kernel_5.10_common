@@ -546,7 +546,7 @@ config MEM_SOFT_DIRTY
 
 config ZSWAP
 	bool "Compressed cache for swap pages (EXPERIMENTAL)"
-	depends on FRONTSWAP && CRYPTO=y && !ZRAM
+	depends on FRONTSWAP && CRYPTO=y
 	select ZPOOL
 	help
 	  A lightweight compressed cache for swap pages.  It takes
