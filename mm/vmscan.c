@@ -181,6 +181,8 @@ struct scan_control {
  */
 int vm_swappiness = 60;
 
+struct kcompress_t kcompress_data[MAX_NUMNODES];
+
 #define DEF_KSWAPD_THREADS_PER_NODE 1
 static int kswapd_threads = DEF_KSWAPD_THREADS_PER_NODE;
 static int __init kswapd_per_node_setup(char *str)
@@ -4215,7 +4217,7 @@ int kswapd_run(int nid)
 		pgdat->kswapd = NULL;
 	}
 
-	ret = kfifo_alloc(&pgdat->kcompress_fifo,
+	ret = kfifo_alloc(&kcompress_data[nid].kcompress_fifo,
 			KCOMPRESS_FIFO_SIZE * sizeof(struct page *),
 			GFP_KERNEL);
 	if (ret) {
@@ -4223,15 +4225,15 @@ int kswapd_run(int nid)
 		return ret;
 	}
 
-	pgdat->kcompressd = kthread_create_on_node(kcompressd, pgdat, nid,
+	kcompress_data[nid].kcompressd = kthread_create_on_node(kcompressd, pgdat, nid,
 			"kcompressd%d", nid);
-	if (IS_ERR(pgdat->kcompressd)) {
+	if (IS_ERR(kcompress_data[nid].kcompressd)) {
 		pr_err("Failed to start kcompressd on node %d，ret=%ld\n",
-				nid, PTR_ERR(pgdat->kcompressd));
-		pgdat->kcompressd = NULL;
-		kfifo_free(&pgdat->kcompress_fifo);
+				nid, PTR_ERR(kcompress_data[nid].kcompressd));
+		kcompress_data[nid].kcompressd = NULL;
+		kfifo_free(&kcompress_data[nid].kcompress_fifo);
 	} else {
-		wake_up_process(pgdat->kcompressd);
+		wake_up_process(kcompress_data[nid].kcompressd);
 	}
 
 	return ret;
@@ -4256,10 +4258,10 @@ void kswapd_stop(int nid)
 		pgdat->kswapd = NULL;
 	}
 
-	if (pgdat->kcompressd) {
-		kthread_stop(pgdat->kcompressd);
-		pgdat->kcompressd = NULL;
-		kfifo_free(&pgdat->kcompress_fifo);
+	if (kcompress_data[nid].kcompressd) {
+		kthread_stop(kcompress_data[nid].kcompressd);
+		kcompress_data[nid].kcompressd = NULL;
+		kfifo_free(&kcompress_data[nid].kcompress_fifo);
 	}
 }
 

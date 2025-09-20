@@ -27,6 +27,8 @@
 #include <linux/sched/task.h>
 #include <trace/hooks/mm.h>
 
+extern struct kcompress_t kcompress_data[MAX_NUMNODES];
+
 static struct bio *get_swap_bio(gfp_t gfp_flags,
 				struct page *page, bio_end_io_t end_io)
 {
@@ -195,9 +197,9 @@ bad_bmap:
 static bool swap_sched_async_compress(struct page *page)
 {
 	struct swap_info_struct *sis;
-	pg_data_t *pgdat = NODE_DATA(numa_node_id());
+	int node_id = numa_node_id();
 
-	if (unlikely(!pgdat->kcompressd))
+	if (unlikely(!kcompress_data[node_id].kcompressd))
 		return false;
 
 	if (!current_is_kswapd())
@@ -208,9 +210,9 @@ static bool swap_sched_async_compress(struct page *page)
 
 	sis = page_swap_info(page);
 	if (data_race(sis->flags & SWP_SYNCHRONOUS_IO)) {
-		if (kfifo_avail(&pgdat->kcompress_fifo) >= sizeof(page) &&
-			kfifo_in(&pgdat->kcompress_fifo, &page, sizeof(page))) {
-			wake_up_interruptible(&pgdat->kcompressd_wait);
+		if (kfifo_avail(&kcompress_data[node_id].kcompress_fifo) >= sizeof(page) &&
+			kfifo_in(&kcompress_data[node_id].kcompress_fifo, &page, sizeof(page))) {
+			wake_up_interruptible(&kcompress_data[node_id].kcompressd_wait);
 			return true;
 		}
 	}
@@ -263,6 +265,7 @@ out:
 int kcompressd(void *p)
 {
 	pg_data_t *pgdat = (pg_data_t *)p;
+	int node_id = pgdat->node_id;
 	struct page *page;
 	struct writeback_control wbc = {
 		.sync_mode = WB_SYNC_NONE,
@@ -273,11 +276,11 @@ int kcompressd(void *p)
 	};
 
 	while (!kthread_should_stop()) {
-		wait_event_interruptible(pgdat->kcompressd_wait,
-				!kfifo_is_empty(&pgdat->kcompress_fifo));
+		wait_event_interruptible(kcompress_data[node_id].kcompressd_wait,
+				!kfifo_is_empty(&kcompress_data[node_id].kcompress_fifo));
 
-		while (!kfifo_is_empty(&pgdat->kcompress_fifo)) {
-			if (kfifo_out(&pgdat->kcompress_fifo, &page, sizeof(page))) {
+		while (!kfifo_is_empty(&kcompress_data[node_id].kcompress_fifo)) {
+			if (kfifo_out(&kcompress_data[node_id].kcompress_fifo, &page, sizeof(page))) {
 				__swap_writepage(page, &wbc, end_swap_bio_write);
 			}
 		}
