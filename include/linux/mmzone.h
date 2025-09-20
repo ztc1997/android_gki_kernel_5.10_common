@@ -20,7 +20,9 @@
 #include <linux/atomic.h>
 #include <linux/mm_types.h>
 #include <linux/page-flags.h>
+#ifndef __GENKSYMS__
 #include <linux/kfifo.h>
+#endif
 #include <linux/android_kabi.h>
 #include <asm/page.h>
 
