@@ -275,6 +275,20 @@ int kcompressd(void *p)
 		.for_reclaim = 1,
 	};
 
+	/*
+	 * Tell the memory management that we're a "memory allocator",
+	 * and that if we need more memory we should get access to it
+	 * regardless (see "__alloc_pages()"). "kswapd" should
+	 * never get caught in the normal page freeing logic.
+	 *
+	 * (Kswapd normally doesn't need memory anyway, but sometimes
+	 * you need a small amount of memory in order to be able to
+	 * page out something else, and this flag essentially protects
+	 * us from recursively trying to free more memory as we're
+	 * trying to free the first piece of memory in the first place).
+	 */
+	current->flags |= PF_MEMALLOC | PF_KSWAPD;
+
 	while (!kthread_should_stop()) {
 		wait_event_interruptible(kcompress_data[node_id].kcompressd_wait,
 				!kfifo_is_empty(&kcompress_data[node_id].kcompress_fifo));
@@ -285,6 +299,8 @@ int kcompressd(void *p)
 			}
 		}
 	}
+	current->flags &= ~(PF_MEMALLOC | PF_KSWAPD);
+
 	return 0;
 }
 
