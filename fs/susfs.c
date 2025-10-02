@@ -354,16 +354,16 @@ void susfs_run_sus_path_loop(uid_t uid) {
 }
 
 static inline bool is_i_uid_in_android_data_not_allowed(uid_t i_uid) {
-	return (likely(susfs_is_current_non_root_user_app_proc()) &&
+	return (likely(susfs_is_current_proc_umounted()) &&
 		unlikely(current_uid().val != i_uid));
 }
 
 static inline bool is_i_uid_in_sdcard_not_allowed(void) {
-	return (likely(susfs_is_current_non_root_user_app_proc()));
+	return (likely(susfs_is_current_proc_umounted()));
 }
 
 static inline bool is_i_uid_not_allowed(uid_t i_uid) {
-	return (likely(susfs_is_current_non_root_user_app_proc()) &&
+	return (likely(susfs_is_current_proc_umounted()) &&
 		unlikely(current_uid().val != i_uid));
 }
 
@@ -471,7 +471,7 @@ static void susfs_update_sus_mount_inode(char *target_pathname) {
 	 */
 	mnt = real_mount(p.mnt);
 	if (mnt->mnt_group_id > 0 && // 0 means no peer group
-		mnt->mnt_group_id < DEFAULT_SUS_MNT_GROUP_ID) {
+		mnt->mnt_group_id < DEFAULT_KSU_MNT_GROUP_ID) {
 		SUSFS_LOGE("skip setting SUS_MOUNT inode state for path '%s' since its source mount has a legit peer group id\n", target_pathname);
 		return;
 	}
@@ -548,7 +548,7 @@ int susfs_auto_add_sus_bind_mount(const char *pathname, struct path *path_target
 
 	mnt = real_mount(path_target->mnt);
 	if (mnt->mnt_group_id > 0 && // 0 means no peer group
-		mnt->mnt_group_id < DEFAULT_SUS_MNT_GROUP_ID) {
+		mnt->mnt_group_id < DEFAULT_KSU_MNT_GROUP_ID) {
 		SUSFS_LOGE("skip setting SUS_MOUNT inode state for path '%s' since its source mount has a legit peer group id\n", pathname);
 		// return 0 here as we still want it to be added to try_umount list
 		return 0;
@@ -584,8 +584,8 @@ void susfs_auto_add_sus_ksu_default_mount(const char __user *to_pathname) {
 	}
 	if ((!strncmp(pathname, "/data/adb/modules", 17) ||
 		 !strncmp(pathname, "/debug_ramdisk", 14) ||
-		 !strncmp(pathname, "/system", 7) ||
 		 !strncmp(pathname, "/system_ext", 11) ||
+		 !strncmp(pathname, "/system", 7) ||
 		 !strncmp(pathname, "/vendor", 7) ||
 		 !strncmp(pathname, "/product", 8) ||
 		 !strncmp(pathname, "/odm", 4)) &&
