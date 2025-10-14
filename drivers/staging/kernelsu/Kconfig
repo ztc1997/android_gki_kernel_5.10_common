@@ -41,14 +41,6 @@ config KSU_SUSFS
     help
       Patch and Enable SUSFS to kernel with KernelSU.
 
-config KSU_SUSFS_HAS_MAGIC_MOUNT
-    bool "Say yes if the current KernelSU repo has magic mount implemented (default y)"
-    depends on KSU_SUSFS
-    default y
-    help
-      - Enable to indicate that the current SUSFS kernel supports the auto hide features for 5ec1cff's Magic Mount KernelSU
-      - Every mounts from /debug_ramdisk/workdir will be treated as magic mount and processed differently by susfs
-
 config KSU_SUSFS_SUS_PATH
     bool "Enable to hide suspicious path (NOT recommended)"
     depends on KSU_SUSFS

@@ -62,7 +62,7 @@ extern bool susfs_is_log_enabled __read_mostly;
 static bool susfs_is_umount_for_zygote_system_process_enabled = false;
 static bool susfs_is_umount_for_zygote_iso_service_enabled = false;
 extern bool susfs_hide_sus_mnts_for_all_procs;
-//extern void susfs_reorder_mnt_id(void);
+extern void susfs_reorder_mnt_id(void);
 #endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 #ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
 extern bool susfs_is_auto_add_sus_bind_mount_enabled;
@@ -327,6 +327,14 @@ static void nuke_ext4_sysfs() {
 int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		     unsigned long arg4, unsigned long arg5)
 {
+#ifdef CONFIG_KSU_SUSFS
+	// - We straight up check if process is supposed to be umounted, return 0 if so
+	// - This is to prevent side channel attack as much as possible
+	if (likely(susfs_is_current_proc_umounted())) {
+		return 0;
+	}
+#endif
+
 	// if success, we modify the arg5 as result!
 	u32 *result = (u32 *)arg5;
 	u32 reply_ok = KERNEL_SU_OPTION;
@@ -1024,6 +1032,15 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 	// Check if spawned process is isolated service first, and force to do umount if so  
 	if (is_zygote_isolated_service_uid(new_uid.val) && susfs_is_umount_for_zygote_iso_service_enabled) {
 		goto do_umount;
+	}
+
+	// - Since ksu maanger app uid is excluded in allow_list_arr, so ksu_uid_should_umount(manager_uid)
+	//   will always return true, that's why we need to explicitly check if new_uid.val belongs to
+	//   ksu manager
+	if (ksu_is_manager_uid_valid() &&
+		(new_uid.val % 1000000 == ksu_get_manager_uid())) // % 1000000 in case it is private space uid
+	{
+		return 0;
 	}
 
 	// Check if spawned process is normal user app and needs to be umounted
