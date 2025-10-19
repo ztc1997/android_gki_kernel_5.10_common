@@ -272,7 +272,8 @@ void ksu_sucompat_init()
 void ksu_sucompat_exit()
 {
 #ifdef KSU_HOOK_WITH_KPROBES
-	for (int i = 0; i < ARRAY_SIZE(su_kps); i++) {
+	int i;
+	for (i = 0; i < ARRAY_SIZE(su_kps); i++) {
 		destroy_kprobe(&su_kps[i]);
 	}
 #endif
