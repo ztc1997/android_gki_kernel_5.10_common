@@ -10721,11 +10721,7 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
 	 */
 	smp_mb();
 
-	/*
-	 * Start with the next CPU after this_cpu so we will end with this_cpu and let a
-	 * chance for other idle cpu to pull load.
-	 */
-	for_each_cpu_wrap(balance_cpu,  nohz.idle_cpus_mask, this_cpu+1) {
+	for_each_cpu(balance_cpu, nohz.idle_cpus_mask) {
 		if (!idle_cpu(balance_cpu))
 			continue;
 
