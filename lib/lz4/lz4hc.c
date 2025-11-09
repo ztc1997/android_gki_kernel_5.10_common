@@ -75,6 +75,8 @@ typedef enum { noDictCtx, usingDictCtxHc } dictCtx_directive;
 #define LZ4_OPT_NUM (1 << 12)
 
 /*===   Macros   ===*/
+#undef MIN
+#undef MAX
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
